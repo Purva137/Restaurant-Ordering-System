@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     const calls = await prisma.staffCall.findMany({
       where: {
         restaurantId: restaurant.id,
-        status,
+        status: status as "OPEN" | "HANDLED",
       },
       include: {
         table: true,

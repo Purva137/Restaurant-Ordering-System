@@ -24,6 +24,7 @@ type OrderDraft = {
     phone: string;
   };
   note: string;
+  idempotencyKey?: string;
 };
 
 /* ---------------- PAGE ---------------- */

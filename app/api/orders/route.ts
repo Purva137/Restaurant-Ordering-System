@@ -150,7 +150,7 @@ export async function POST(req: Request) {
         totalAmount,
         taxAmount: normalizedTax,
         tipAmount: normalizedTip,
-        paymentMethod: normalizedPaymentMethod,
+        paymentMethod: normalizedPaymentMethod as "CARD" | "WALLET" | "COUNTER",
         paymentReference: paymentReference ?? null,
         idempotencyKey: idempotencyKey ?? null,
         items: {

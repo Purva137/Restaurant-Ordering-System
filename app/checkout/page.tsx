@@ -125,7 +125,7 @@ export default function CheckoutPage() {
       paymentMethod: payment,
       customer: { name, phone },
       note,
-      paymentReference,
+      paymentReference: paymentReference ?? undefined,
     };
 
     const hasChanged =

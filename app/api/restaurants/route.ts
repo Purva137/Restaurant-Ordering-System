@@ -5,9 +5,10 @@ import { prisma } from "@/app/lib/prisma";
 import { requireRoleApi } from "@/app/lib/auth";
 
 export async function POST(req: Request) {
+  let user;
   try {
     // 🔐 Role check - Only ADMIN can create restaurants
-    const user = await requireRoleApi(["ADMIN"]);
+    user = await requireRoleApi(["ADMIN"]);
   } catch (error: any) {
     if (error.message === "UNAUTHENTICATED") {
       return NextResponse.json({ error: "Unauthenticated" }, { status: 401 });

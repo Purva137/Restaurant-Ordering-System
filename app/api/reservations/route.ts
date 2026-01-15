@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     const reservations = await prisma.reservation.findMany({
       where: {
         restaurantId: restaurant.id,
-        status,
+        ...(status && { status: status as "CONFIRMED" | "CANCELLED" | "NO_SHOW" }),
       },
       orderBy: { dateTime: "asc" },
     });
