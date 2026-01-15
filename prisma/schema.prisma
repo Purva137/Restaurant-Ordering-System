@@ -1,0 +1,198 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(cuid())
+  clerkId    String   @unique
+  name       String?
+  email      String?
+  role       UserRole @default(ADMIN)
+
+  restaurant Restaurant?
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Restaurant {
+  id           String   @id @default(cuid())
+  name         String
+  ownerId      String   @unique
+  description  String?
+  isActive     Boolean  @default(true)
+
+  owner        User          @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  menu         MenuItem[]
+  orders       Order[]
+  tables       Table[]
+  reservations Reservation[]
+  staffCalls   StaffCall[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Table {
+  id           String   @id @default(cuid())
+  restaurantId String
+  code         String   @unique
+  label        String?
+  seats        Int      @default(2)
+  isActive     Boolean  @default(true)
+
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orders       Order[]
+  reservations Reservation[]
+  staffCalls   StaffCall[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model MenuItem {
+  id           String        @id @default(cuid())
+  restaurantId String
+
+  name         String
+  description  String?
+  price        Int
+  imageUrl     String?
+  isAvailable  Boolean       @default(true)
+  category     MenuCategory?
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  orderItems   OrderItem[]
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  restaurantId   String
+  tableId        String
+
+  tableNumber    String
+  customerName   String?
+  customerNote   String?
+
+  status         OrderStatus @default(RECEIVED)
+  totalAmount    Int         @default(0)
+  taxAmount      Int         @default(0)
+  tipAmount      Int         @default(0)
+  paymentMethod  PaymentMethod @default(COUNTER)
+  paymentReference String?
+  idempotencyKey String?     @unique
+
+  items          OrderItem[]
+
+  restaurant     Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  table          Table      @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model OrderItem {
+  id           String   @id @default(cuid())
+  orderId      String
+  menuItemId   String
+
+  menuItemName String
+  quantity     Int
+  price        Int
+
+  order        Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem     MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Restrict)
+
+  createdAt    DateTime @default(now())
+}
+
+model Reservation {
+  id           String            @id @default(cuid())
+  restaurantId String
+  tableId      String?
+  name         String
+  phone        String
+  partySize    Int
+  dateTime     DateTime
+  status       ReservationStatus @default(CONFIRMED)
+  notes        String?
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  table        Table?     @relation(fields: [tableId], references: [id], onDelete: SetNull)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model StaffCall {
+  id           String          @id @default(cuid())
+  restaurantId String
+  tableId      String
+  status       StaffCallStatus @default(OPEN)
+  handledAt    DateTime?
+
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  table        Table      @relation(fields: [tableId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+}
+
+enum UserRole {
+  ADMIN
+  STAFF
+}
+
+enum OrderStatus {
+  RECEIVED
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CARD
+  WALLET
+  COUNTER
+}
+
+enum ReservationStatus {
+  CONFIRMED
+  CANCELLED
+  NO_SHOW
+}
+
+enum StaffCallStatus {
+  OPEN
+  HANDLED
+}
+
+enum MenuCategory {
+  SOUP
+  APPETIZER
+  SALADS
+  RAMEN_AND_NOODLES
+  BURGERS_AND_SANDWICHES
+  SUSHI
+  MINI_SUSHI
+  DESSERT
+  BEVERAGE
+  DONBURI
+  BENTO
+  SPECIAL_DISHES
+  FISH
+  KOREAN_DELIGHTS
+  COFFEE
+  MATCHA
+  COOKIES
+  BREADS
+  PAIRINGS
+}

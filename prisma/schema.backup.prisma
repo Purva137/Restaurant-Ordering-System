@@ -1,0 +1,112 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Restaurant {
+  id           String        @id @default(cuid())
+  name         String
+  description  String?
+  isActive     Boolean       @default(true)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  menuItems    MenuItem[]
+  orders       Order[]
+  reservations Reservation[]
+  serverCalls  ServerCall[]
+}
+
+model MenuItem {
+  id           String      @id @default(cuid())
+  restaurantId String
+  name         String
+  description  String?
+  price        Int
+  category     MenuCategory?
+  isAvailable  Boolean     @default(true)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  restaurant   Restaurant  @relation(fields: [restaurantId], references: [id])
+  orderItems   OrderItem[]
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  restaurantId   String
+  tableNumber    String?
+  customerNote   String?
+  status         OrderStatus @default(RECEIVED)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  idempotencyKey String?     @unique
+  restaurant     Restaurant  @relation(fields: [restaurantId], references: [id])
+  items          OrderItem[]
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+}
+
+model Reservation {
+  id           String     @id @default(cuid())
+  restaurantId String
+  createdAt    DateTime   @default(now())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
+}
+
+model ServerCall {
+  id           String           @id @default(cuid())
+  restaurantId String
+  status       ServerCallStatus @default(OPEN)
+  createdAt    DateTime         @default(now())
+  restaurant   Restaurant       @relation(fields: [restaurantId], references: [id])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  role      UserRole
+  createdAt DateTime @default(now())
+}
+
+enum OrderStatus {
+  RECEIVED
+  ACCEPTED
+  PREPARING
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+enum ServerCallStatus {
+  OPEN
+  HANDLED
+}
+
+enum UserRole {
+  ADMIN
+  KITCHEN
+  CUSTOMER
+}
+
+enum MenuCategory {
+  SOUP
+  APPETIZER
+  SALADS
+  RAMEN_AND_NOODLES
+}

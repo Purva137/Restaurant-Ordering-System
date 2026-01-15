@@ -24,3 +24,47 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fadeUp 0.8s ease-out forwards;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.4; }
+}
+
+.animate-pulse {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+/* Clerk UserButton dark theme overrides - Force white text */
+[data-clerk-element="userButtonPopoverCard"],
+[data-clerk-element="userButtonPopoverCard"] *,
+[data-clerk-element="userButtonPopoverMain"] *,
+[data-clerk-element="userPreviewMainIdentifier"],
+[data-clerk-element="userPreviewSecondaryIdentifier"],
+[data-clerk-element="userButtonPopoverActionButton"],
+[data-clerk-element="userButtonPopoverActionButtonText"] {
+  color: #ffffff !important;
+}
+
+[data-clerk-element="userButtonPopoverCard"] {
+  background-color: #1a1a1a !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-clerk-element="userButtonPopoverActionButton"]:hover {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
