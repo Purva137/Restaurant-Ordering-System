@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import CallStaffButton from "@/app/components/CallStaffButton";
 
@@ -27,37 +27,10 @@ type OrderDraft = {
   idempotencyKey?: string;
 };
 
-/* ---------------- PAGE ---------------- */
+/* ---------------- PAYMENT VERIFICATION ---------------- */
 
-export default function ConfirmationPage() {
-  const router = useRouter();
+function PaymentVerification() {
   const searchParams = useSearchParams();
-  const [order, setOrder] = useState<OrderDraft | null>(null);
-
-  /* ---------------- LOAD ORDER ---------------- */
-
-  useEffect(() => {
-    const raw = localStorage.getItem("orderDraft");
-
-    if (!raw) {
-      router.replace("/menu");
-      return;
-    }
-
-    try {
-      const parsed = JSON.parse(raw) as OrderDraft;
-
-      // basic safety check
-      if (!parsed.items || parsed.items.length === 0) {
-        router.replace("/menu");
-        return;
-      }
-
-      setOrder(parsed);
-    } catch {
-      router.replace("/menu");
-    }
-  }, [router]);
 
   useEffect(() => {
     const sessionId = searchParams.get("session_id");
@@ -105,6 +78,40 @@ export default function ConfirmationPage() {
     finalizeOrder().catch(() => {});
   }, [searchParams]);
 
+  return null;
+}
+
+/* ---------------- PAGE ---------------- */
+
+export default function ConfirmationPage() {
+  const router = useRouter();
+  const [order, setOrder] = useState<OrderDraft | null>(null);
+
+  /* ---------------- LOAD ORDER ---------------- */
+
+  useEffect(() => {
+    const raw = localStorage.getItem("orderDraft");
+
+    if (!raw) {
+      router.replace("/menu");
+      return;
+    }
+
+    try {
+      const parsed = JSON.parse(raw) as OrderDraft;
+
+      // basic safety check
+      if (!parsed.items || parsed.items.length === 0) {
+        router.replace("/menu");
+        return;
+      }
+
+      setOrder(parsed);
+    } catch {
+      router.replace("/menu");
+    }
+  }, [router]);
+
   if (!order) {
     return (
       <main className="min-h-screen bg-black text-white flex items-center justify-center">
@@ -129,6 +136,9 @@ export default function ConfirmationPage() {
 
   return (
     <main className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6 text-center">
+      <Suspense fallback={null}>
+        <PaymentVerification />
+      </Suspense>
       <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-xl mb-6">
         ✓
       </div>
