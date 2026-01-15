@@ -3,14 +3,15 @@ import { prisma } from "@/app/lib/prisma";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const body = await req.json();
     const status = body.status ?? "HANDLED";
 
     const call = await prisma.staffCall.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         status,
         handledAt: status === "HANDLED" ? new Date() : null,
