@@ -10,7 +10,12 @@ export default function ScanPage() {
   useEffect(() => {
     const scanner = new Html5QrcodeScanner(
       "reader",
-      { fps: 10, qrbox: 250 },
+      {
+        fps: 10,
+        qrbox: { width: 220, height: 220 },
+        aspectRatio: 1,
+        videoConstraints: { facingMode: "environment" },
+      },
       false
     );
 
@@ -50,7 +55,7 @@ export default function ScanPage() {
       <h1 className="text-xl font-semibold mb-4">Scan QR to Order</h1>
       <div
         id="reader"
-        className="w-[300px] h-[300px] rounded-lg overflow-hidden"
+        className="w-[320px] h-[320px] rounded-xl overflow-hidden border border-white/10 bg-black/40 shadow-lg [&>video]:w-full [&>video]:h-full [&>video]:object-cover [&>canvas]:w-full [&>canvas]:h-full"
       />
       <p className="mt-4 text-sm text-white/60 text-center">
         Point your camera at the QR code on your table
