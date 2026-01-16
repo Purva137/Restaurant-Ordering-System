@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import CallStaffButton from "@/app/components/CallStaffButton";
 
 /* ---------------- TYPES ---------------- */
@@ -35,12 +35,30 @@ type MenuItem = {
     | null;
 };
 
+/* ---------------- TABLE CODE ---------------- */
+
+function TableCodeHydrator({
+  onTableCode,
+}: {
+  onTableCode: (code: string | null) => void;
+}) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    onTableCode(searchParams.get("table"));
+  }, [searchParams, onTableCode]);
+
+  return null;
+}
+
 /* ---------------- PAGE ---------------- */
 
 export default function MenuPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const tableCode = searchParams.get("table");
+  const [tableCode, setTableCode] = useState<string | null>(null);
+  const handleTableCode = useCallback((code: string | null) => {
+    setTableCode(code);
+  }, []);
 
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -191,6 +209,9 @@ export default function MenuPage() {
 
   return (
     <main className="min-h-screen bg-black text-white pb-40">
+      <Suspense fallback={null}>
+        <TableCodeHydrator onTableCode={handleTableCode} />
+      </Suspense>
       {/* HEADER */}
       <header className="sticky top-0 z-20 bg-black/70 backdrop-blur-md px-6 py-4 flex items-center gap-4">
         <button
