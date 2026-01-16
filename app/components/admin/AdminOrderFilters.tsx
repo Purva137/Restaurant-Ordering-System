@@ -1,10 +1,11 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 const STATUSES = ["ALL", "RECEIVED", "PREPARING", "READY", "COMPLETED", "CANCELLED"] as const;
 
-export default function AdminOrderFilters() {
+function AdminOrderFiltersInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -42,5 +43,13 @@ export default function AdminOrderFilters() {
         );
       })}
     </div>
+  );
+}
+
+export default function AdminOrderFilters() {
+  return (
+    <Suspense fallback={null}>
+      <AdminOrderFiltersInner />
+    </Suspense>
   );
 }

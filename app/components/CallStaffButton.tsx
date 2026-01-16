@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
   label?: string;
 };
 
-export default function CallStaffButton({ className, label = "Call Staff" }: Props) {
+function CallStaffButtonInner({ className, label = "Call Staff" }: Props) {
   const searchParams = useSearchParams();
   const [tableCode, setTableCode] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -52,6 +52,26 @@ export default function CallStaffButton({ className, label = "Call Staff" }: Pro
     >
       {loading ? "Calling…" : label}
     </button>
+  );
+}
+
+export default function CallStaffButton(props: Props) {
+  return (
+    <Suspense
+      fallback={
+        <button
+          className={
+            props.className ??
+            "rounded-full border border-white/20 px-4 py-2 text-xs text-white/80 hover:bg-white/10 transition"
+          }
+          disabled
+        >
+          {props.label ?? "Call Staff"}
+        </button>
+      }
+    >
+      <CallStaffButtonInner {...props} />
+    </Suspense>
   );
 }
 

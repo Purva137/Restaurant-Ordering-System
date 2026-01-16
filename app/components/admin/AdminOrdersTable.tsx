@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 type Order = {
   id: string;
@@ -12,7 +12,7 @@ type Order = {
   createdAt: string;
 };
 
-export default function AdminOrdersTable() {
+function AdminOrdersTableInner() {
   const searchParams = useSearchParams();
   const status = searchParams.get("status") ?? "";
 
@@ -76,5 +76,13 @@ export default function AdminOrdersTable() {
         </tbody>
       </table>
     </div>
+  );
+}
+
+export default function AdminOrdersTable() {
+  return (
+    <Suspense fallback={<p className="mt-6 text-white/60">Loading orders…</p>}>
+      <AdminOrdersTableInner />
+    </Suspense>
   );
 }
